@@ -4,4 +4,5 @@
 
 azure-functions
 azure-functions-worker
-grpcio~=1.33.1
+grpcio>=1.33.1,<1.52.0; platform_system!="Linux"
+grpcio>=1.33.1,<1.52.0; platform_system=="Linux" --no-binary=grpcio
