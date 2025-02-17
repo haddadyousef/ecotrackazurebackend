@@ -49,42 +49,18 @@ jobs:
           pip install wheel setuptools
           pip install --only-binary :all: grpcio==1.33.1
           pip install --only-binary :all: grpcio-tools==1.33.1
-          pip install azure-functions
-          pip install azure-functions-worker==1.1.9
-          pip install azure-cosmos
           pip install -r requirements.txt
 
-      - name: Generate host.json
-        run: |
-          echo '{
-            "version": "2.0",
-            "logging": {
-              "applicationInsights": {
-                "samplingSettings": {
-                  "isEnabled": true,
-                  "excludedTypes": "Request"
-                }
-              }
-            },
-            "extensionBundle": {
-              "id": "Microsoft.Azure.Functions.ExtensionBundle",
-              "version": "[3.*, 4.0.0)"
-            }
-          }' > host.json
-
       - name: Zip artifact for deployment
-        run: |
-          zip release.zip ./* -r
-          zip -r release.zip host.json
-          zip -r release.zip requirements.txt
-          zip -r release.zip functions_app.py
-          zip -r release.zip -x "venv/*"
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: release.zip
+          path: |
+            release.zip
+            !venv/
 
   deploy:
     runs-on: ubuntu-latest
@@ -115,17 +91,4 @@ jobs:
         with:
           app-name: 'ecotrackazureback'
           slot-name: 'Production'
-          package: release.zip
-          respect-funcignore: true
-          enable-python: true
-          scm-do-build-during-deployment: false
-
-      - name: 'Post Deploy Status'
-        if: always()
-        run: |
-          if [ "${{ job.status }}" = "success" ]; then
-            echo "Deployment completed successfully"
-          else
-            echo "Deployment failed"
-            echo "Please check the Azure Function App logs for more details"
-          fi
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
