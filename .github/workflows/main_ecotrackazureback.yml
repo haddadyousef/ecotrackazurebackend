@@ -47,9 +47,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install wheel setuptools
-          # Install specific version of grpcio that's compatible with azure-functions-worker
-          pip install --only-binary :all: grpcio~=1.33.1
-          pip install --only-binary :all: grpcio-tools~=1.33.1
+          pip install --only-binary :all: grpcio>=1.44.0
+          pip install --only-binary :all: grpcio-tools>=1.44.0
+          pip install azure-functions-worker>=1.2.0
           pip install -r requirements.txt
 
       - name: Zip artifact for deployment
